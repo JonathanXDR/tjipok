@@ -8,12 +8,19 @@ import { useEffect, useState } from "react";
 import { JiraProjects } from "./JiraProjects";
 import { JiraBoards } from "./JiraBoards";
 import { JiraSprints } from "./JiraSprints";
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function RoomPage(props: { params: { id: string } }) {
   const [token, setToken] = useState("");
   const [cloudId, setCloudId] = useState("");
   const [projectId, setProjectId] = useState("");
   const [boardId, setBoardId] = useState("");
+  const [roomData, setRoomData] = useState(null);
 
   function setJira(storage: string) {
     try {
@@ -43,8 +50,16 @@ export default function RoomPage(props: { params: { id: string } }) {
 
     window.addEventListener("storage", storageListener);
 
+    const roomSubscription = supabase
+      .from(`rooms:id=eq.${props.params.id}`)
+      .on('UPDATE', payload => {
+        setRoomData(payload.new);
+      })
+      .subscribe();
+
     return () => {
       window.removeEventListener("storage", storageListener);
+      supabase.removeSubscription(roomSubscription);
     };
   }, []);
 
@@ -94,6 +109,12 @@ export default function RoomPage(props: { params: { id: string } }) {
         ) : (
           <div>
             <ConnectToJira state={props.params.id} />
+          </div>
+        )}
+        {roomData && (
+          <div>
+            <h2>Real-time Updates</h2>
+            <p>Room data: {JSON.stringify(roomData)}</p>
           </div>
         )}
       </div>
