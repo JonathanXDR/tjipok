@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { fetchIssues } from "./services";
+import { JiraIssue } from "../../../types/JiraTypes";
 
 interface Props {
   sprintId: string;
 }
 
 export function JiraIssues({ sprintId }: Props) {
-  const [issues, setIssues] = useState<any>([]);
+  const [issues, setIssues] = useState<JiraIssue[]>([]);
 
   useEffect(() => {
     if (sprintId) {
       fetchIssues(sprintId)
-        .then((issues: any) => {
+        .then((issues: JiraIssue[]) => {
           setIssues(issues.issues);
         })
         .catch(() => {
@@ -28,7 +29,7 @@ export function JiraIssues({ sprintId }: Props) {
 
   return (
     <ol className="list-decimal">
-      {issues.map((issue: any) => (
+      {issues.map((issue: JiraIssue) => (
         <li key={issue.id}>
           <strong>{issue.key}</strong> <span>{issue.fields.summary}</span>
         </li>

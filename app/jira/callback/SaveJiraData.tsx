@@ -2,8 +2,9 @@
 
 import { useEffect } from "react";
 import { FaCircleNotch } from "react-icons/fa6";
+import { JiraAuth, JiraSite } from "../../../types/JiraTypes";
 
-export function SaveJiraData({ data }: { data: any }) {
+export function SaveJiraData({ data }: { data: { auth: JiraAuth, site: JiraSite[] } }) {
   useEffect(() => {
     localStorage.setItem("jira", JSON.stringify(data));
     setTimeout(() => {
